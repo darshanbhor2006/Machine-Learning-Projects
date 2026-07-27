@@ -133,7 +133,6 @@ page = st.sidebar.radio(
     [
         "🏠 Home",
         "📊 Prediction",
-        "📂 Batch Processing",
         "ℹ About"
     ]
 )
@@ -483,62 +482,6 @@ Recommended Actions
         st.success("✅ Prediction Completed Successfully")
 
 # ======================================================
-# BATCH PROCESSING PAGE
-# ======================================================
-
-elif page == "📂 Batch Processing":
-
-    st.title("📂 Batch Churn Prediction")
-
-    st.markdown(
-        "<h4 style='color:#00A896;'>Upload Customer CSV Dataset</h4>",
-        unsafe_allow_html=True
-    )
-
-    uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
-
-    if uploaded_file is not None:
-        batch_df = pd.read_csv(uploaded_file)
-        st.write("Preview:", batch_df.head(5))
-
-        if st.button("Run Bulk Predictions"):
-            try:
-                proc_df = batch_df.copy()
-
-                if 'Geography' in proc_df.columns:
-                    proc_df['Geography_Germany'] = (proc_df['Geography'] == 'Germany').astype(int)
-                    proc_df['Geography_Spain'] = (proc_df['Geography'] == 'Spain').astype(int)
-                    proc_df.drop(columns=['Geography'], inplace=True)
-
-                if 'Gender' in proc_df.columns:
-                    proc_df['Gender_Male'] = (proc_df['Gender'] == 'Male').astype(int)
-                    proc_df.drop(columns=['Gender'], inplace=True)
-
-                for col in ['HasCrCard', 'IsActiveMember']:
-                    if col in proc_df.columns and proc_df[col].dtype == object:
-                        proc_df[col] = proc_df[col].map({'Yes': 1, 'No': 0})
-
-                scaled_batch = scaler.transform(proc_df)
-                predictions = model.predict(scaled_batch)
-                probs = model.predict_proba(scaled_batch)[:, 1]
-
-                batch_df['Prediction'] = np.where(predictions == 1, 'Exit', 'Stay')
-                batch_df['Churn Probability (%)'] = (probs * 100).round(2)
-
-                st.success("Processing Completed!")
-                st.dataframe(batch_df, use_container_width=True)
-
-                csv_output = batch_df.to_csv(index=False).encode('utf-8')
-                st.download_button(
-                    label="📥 Download Scored Batch Results",
-                    data=csv_output,
-                    file_name="churn_batch_predictions.csv",
-                    mime="text/csv"
-                )
-            except Exception as e:
-                st.error(f"Error processing batch: {e}")
-
-# ======================================================
 # ABOUT PAGE
 # ======================================================
 
@@ -737,8 +680,8 @@ border: 1px solid #CBD5E1;
 
     st.success("""
 📧 Email: darshanbhor2006@gmail.com
-💼 LinkedIn: https://linkedin.com/in/yourprofile
-🐙 GitHub: https://github.com/yourusername
+💼 LinkedIn: https://www.linkedin.com/in/darshan-bhor
+🐙 GitHub: https://github.com/darshanbhor2006
 """)
 
     st.write("---")
@@ -753,7 +696,7 @@ border-radius:15px;
 ">
 
 <h3 style="color:white !important;">🏦 Customer Churn Prediction System</h3>
-<p>Built with ❤️ using Python, Streamlit & Machine Learning</p>
+<p>Built with Darshan Bhor using Python, Streamlit & Machine Learning</p>
 <p>© 2026 Darshan Bhor | All Rights Reserved</p>
 
 </div>
