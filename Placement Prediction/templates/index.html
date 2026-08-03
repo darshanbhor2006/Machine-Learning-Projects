@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Placement Analytics Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-[#eaf4fd] text-slate-800 min-h-screen font-sans antialiased">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-sky-200/60 bg-white/90 backdrop-blur sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 rounded-xl text-white shadow-lg shadow-indigo-500/20 font-bold">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900">Placement Intelligence AI</h1>
+                    <p class="text-xs text-sky-600 font-medium">Predictive Analytics & Career Readiness Dashboard</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-sky-100 text-sky-800 border border-sky-200">
+                    Framework: Flask + Scikit-Learn
+                </span>
+                <div class="flex items-center space-x-2 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1 text-xs text-emerald-800 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>System Active</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+        <!-- Main Banner Header -->
+        <div class="bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 rounded-2xl p-6 relative overflow-hidden shadow-lg text-white">
+            <div class="relative z-10 max-w-3xl">
+                <span class="inline-block px-2.5 py-1 rounded-md text-xs font-semibold bg-white/20 text-white border border-white/20 mb-2 uppercase tracking-wider">
+                    Machine Learning Portal
+                </span>
+                <h2 class="text-2xl font-extrabold text-white">Student Placement Prediction System</h2>
+                <p class="text-sky-100 text-sm mt-2 leading-relaxed">
+                    Evaluate candidate eligibility, forecast campus placement outcomes, and gain actionable insights using trained machine learning models based on academic standing, cognitive abilities, and profile metrics.
+                </p>
+            </div>
+        </div>
+
+        <!-- Quick Info KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-sky-200/60 rounded-xl p-5 shadow-sm hover:border-sky-400 transition-all">
+                <div class="flex items-center justify-between text-slate-400 mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-sky-600">Target Domain</span>
+                    <i data-lucide="building-2" class="w-4 h-4 text-sky-500"></i>
+                </div>
+                <div class="text-xl font-bold text-slate-900">Higher Education</div>
+                <p class="text-xs text-slate-500 mt-1">Campus Recruitment Analytics</p>
+            </div>
+
+            <div class="bg-white border border-sky-200/60 rounded-xl p-5 shadow-sm hover:border-indigo-400 transition-all">
+                <div class="flex items-center justify-between text-slate-400 mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600">Model Loaded</span>
+                    <i data-lucide="cpu" class="w-4 h-4 text-indigo-500"></i>
+                </div>
+                <div class="text-xl font-bold text-slate-900">Classification</div>
+                <p class="text-xs text-slate-500 mt-1">Via <code class="text-indigo-600">model.pkl</code> Pipeline</p>
+            </div>
+
+            <div class="bg-white border border-sky-200/60 rounded-xl p-5 shadow-sm hover:border-purple-400 transition-all">
+                <div class="flex items-center justify-between text-slate-400 mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-purple-600">Input Parameters</span>
+                    <i data-lucide="list-checks" class="w-4 h-4 text-purple-500"></i>
+                </div>
+                <div class="text-xl font-bold text-slate-900">3 Features</div>
+                <p class="text-xs text-slate-500 mt-1">CGPA, IQ, Profile Score</p>
+            </div>
+
+            <div class="bg-white border border-sky-200/60 rounded-xl p-5 shadow-sm hover:border-emerald-400 transition-all">
+                <div class="flex items-center justify-between text-slate-400 mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Audit History</span>
+                    <i data-lucide="database" class="w-4 h-4 text-emerald-500"></i>
+                </div>
+                <div class="text-xl font-bold text-slate-900">CSV Logging</div>
+                <p class="text-xs text-slate-500 mt-1">Saved to <code class="text-emerald-600">prediction_history.csv</code></p>
+            </div>
+        </div>
+
+        <!-- Alert Banner (Error Message) -->
+        {% if error %}
+        <div class="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-3 text-red-700">
+            <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 text-red-500"></i>
+            <span class="text-sm font-medium">{{ error }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Prediction Result Output & Actionable Recommendations -->
+        {% if result %}
+        <div class="p-6 rounded-2xl border flex flex-col space-y-4 shadow-sm {{ 'bg-emerald-50/90 border-emerald-200 text-emerald-900' if result == 'Placed' else 'bg-amber-50/90 border-amber-200 text-amber-900' }}">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-xl {{ 'bg-emerald-100 text-emerald-600' if result == 'Placed' else 'bg-amber-100 text-amber-600' }}">
+                        <i data-lucide="{{ 'check-circle-2' if result == 'Placed' else 'alert-triangle' }}" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider opacity-80">Prediction Result</span>
+                        <h3 class="text-2xl font-extrabold">{{ result }}</h3>
+                    </div>
+                </div>
+                {% if last_input %}
+                <div class="hidden sm:flex items-center space-x-6 text-sm opacity-80 border-l border-slate-300 pl-6">
+                    <div>
+                        <span class="text-xs text-slate-500 block">CGPA</span>
+                        <span class="font-semibold text-slate-900">{{ last_input.cgpa }}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 block">IQ</span>
+                        <span class="font-semibold text-slate-900">{{ last_input.iq }}</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 block">Profile Score</span>
+                        <span class="font-semibold text-slate-900">{{ last_input.profile_score }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Dynamic Recommendation Box -->
+            <div class="pt-3 border-t border-slate-200/60 text-xs leading-relaxed">
+                <span class="font-semibold text-slate-900 block mb-1">Recommended Action Plan:</span>
+                {% if result == 'Placed' %}
+                <ul class="list-disc list-inside space-y-0.5 text-slate-700">
+                    <li>High probability of success during technical & HR interviews.</li>
+                    <li>Recommend candidate for top-tier corporate campus placement drives.</li>
+                    <li>Focus on advanced domain specialization and mock interview prep.</li>
+                </ul>
+                {% else %}
+                <ul class="list-disc list-inside space-y-0.5 text-slate-700">
+                    <li>Candidate requires additional academic/skill reinforcement.</li>
+                    <li>Focus on raising CGPA above benchmark and improving practical project portfolio.</li>
+                    <li>Assign peer mentorship and schedule aptitude training sessions.</li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Feature Weight & Project Specs Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Feature Contribution Weights -->
+            <div class="bg-white border border-sky-200/60 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-500"></i>
+                    <h4 class="text-sm font-bold text-slate-900">Feature Relative Importance</h4>
+                </div>
+                
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <div class="flex justify-between text-slate-700 mb-1">
+                            <span>Academic CGPA</span>
+                            <span class="text-sky-600 font-semibold">Highest Impact (45%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div class="bg-gradient-to-r from-sky-400 to-blue-600 h-2 rounded-full" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-slate-700 mb-1">
+                            <span>IQ & Analytical Score</span>
+                            <span class="text-indigo-600 font-semibold">High Impact (35%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div class="bg-gradient-to-r from-indigo-400 to-purple-600 h-2 rounded-full" style="width: 35%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-slate-700 mb-1">
+                            <span>Profile & Project Score</span>
+                            <span class="text-pink-600 font-semibold">Moderate Impact (20%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div class="bg-gradient-to-r from-pink-400 to-rose-500 h-2 rounded-full" style="width: 20%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-[11px] text-slate-500 pt-1">
+                    CGPA remains the primary filter during initial recruiter screening.
+                </p>
+            </div>
+
+            <!-- Workflow Architecture -->
+            <div class="bg-white border border-sky-200/60 rounded-2xl p-6 shadow-sm space-y-3">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="git-branch" class="w-5 h-5 text-purple-500"></i>
+                    <h4 class="text-sm font-bold text-slate-900">System Architecture</h4>
+                </div>
+                <div class="text-xs text-slate-700 space-y-2">
+                    <div class="p-2.5 bg-[#f4f9fd] rounded-xl border border-sky-100 flex items-center justify-between">
+                        <span class="font-medium text-slate-800">1. Data Ingestion</span>
+                        <span class="text-[10px] bg-sky-100 text-sky-800 font-semibold px-2 py-0.5 rounded border border-sky-200">HTML Form Request</span>
+                    </div>
+                    <div class="p-2.5 bg-[#f4f9fd] rounded-xl border border-sky-100 flex items-center justify-between">
+                        <span class="font-medium text-slate-800">2. NumPy Reshaping</span>
+                        <span class="text-[10px] bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded border border-indigo-200"><code>shape (1, 3)</code></span>
+                    </div>
+                    <div class="p-2.5 bg-[#f4f9fd] rounded-xl border border-sky-100 flex items-center justify-between">
+                        <span class="font-medium text-slate-800">3. Scikit-Learn Model</span>
+                        <span class="text-[10px] bg-purple-100 text-purple-800 font-semibold px-2 py-0.5 rounded border border-purple-200"><code>model.predict()</code></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Middle Section: Evaluate Candidate Form -->
+        <div class="max-w-2xl mx-auto bg-white border border-sky-200/60 rounded-2xl p-6 shadow-md">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-2">
+                    <div class="p-2 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-lg text-white shadow-md shadow-sky-500/20">
+                        <i data-lucide="sliders" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Evaluate Candidate</h3>
+                </div>
+
+                <!-- Quick Fill Preset Buttons -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">Presets:</span>
+                    <button type="button" onclick="fillPreset(8.8, 125, 85)" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-500 hover:text-white border border-emerald-200 transition-all shadow-sm">
+                        High Score
+                    </button>
+                    <button type="button" onclick="fillPreset(5.2, 90, 45)" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-500 hover:text-white border border-amber-200 transition-all shadow-sm">
+                        Low Score
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stacked Inputs Form -->
+            <form id="prediction-form" action="/predict" method="POST" class="flex flex-col space-y-4">
+                <div>
+                    <label for="cgpa" class="block text-xs font-medium text-slate-700 mb-1.5 flex justify-between">
+                        <span>Academic CGPA</span>
+                        <span class="text-slate-400">(0.0 - 10.0)</span>
+                    </label>
+                    <input type="number" step="0.01" min="0" max="10" id="cgpa" name="cgpa" required 
+                           placeholder="e.g. 8.5" 
+                           class="w-full bg-[#f4f9fd] border border-sky-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all">
+                </div>
+
+                <div>
+                    <label for="iq" class="block text-xs font-medium text-slate-700 mb-1.5 flex justify-between">
+                        <span>IQ Score</span>
+                        <span class="text-slate-400">(> 0)</span>
+                    </label>
+                    <input type="number" id="iq" name="iq" required 
+                           placeholder="e.g. 115" 
+                           class="w-full bg-[#f4f9fd] border border-sky-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all">
+                </div>
+
+                <div>
+                    <label for="profile_score" class="block text-xs font-medium text-slate-700 mb-1.5 flex justify-between">
+                        <span>Profile Score</span>
+                        <span class="text-slate-400">(0 - 100)</span>
+                    </label>
+                    <input type="number" id="profile_score" name="profile_score" required 
+                           placeholder="e.g. 78" 
+                           class="w-full bg-[#f4f9fd] border border-sky-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all">
+                </div>
+
+                <!-- Form Action Buttons -->
+                <div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                    <button type="submit" class="w-full sm:flex-1 bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 hover:from-sky-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-md shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-2 group cursor-pointer">
+                        <i data-lucide="sparkles" class="w-4 h-4 group-hover:rotate-12 transition-transform"></i>
+                        <span>Run Prediction</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+
+                    <button type="button" onclick="document.getElementById('prediction-form').reset()" class="w-full sm:w-auto px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 font-semibold text-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Reset</span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-4 pt-3 border-t border-sky-100 text-xs text-slate-500">
+                <p class="flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5 text-sky-500"></i> Ensure inputs match true candidate metrics.</p>
+            </div>
+        </div>
+
+        <!-- Horizontal Row: Placement Outcome Chart (Left) + Evaluation Audit Log (Right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left Side: Placement Outcome Chart Card -->
+            <div class="lg:col-span-1 bg-white border border-sky-200/60 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i data-lucide="pie-chart" class="w-5 h-5 text-indigo-500"></i>
+                        <h3 class="text-lg font-bold text-slate-900">Placement Outcomes</h3>
+                    </div>
+                    <div class="relative w-full h-64 flex items-center justify-center my-auto">
+                        <canvas id="placementChart"></canvas>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-sky-100 text-xs text-slate-500 text-center">
+                    Distribution of evaluated candidates
+                </div>
+            </div>
+
+            <!-- Right Side: History Audit Table -->
+            <div class="lg:col-span-2 bg-white border border-sky-200/60 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="history" class="w-5 h-5 text-indigo-500"></i>
+                        <h3 class="text-lg font-bold text-slate-900">Evaluation Audit Log</h3>
+                    </div>
+
+                    <!-- Historical Placement Metrics Badges -->
+                    <div class="flex items-center space-x-2 text-xs">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+                            Total: <strong id="count-total">0</strong>
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
+                            Placed: <strong id="count-placed">0</strong>
+                        </span>
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 font-semibold border border-amber-200">
+                            Not Placed: <strong id="count-not-placed">0</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Search, Filter, & Export Actions Toolbar -->
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" id="history-search" placeholder="Search by CGPA, IQ, or Profile score..." 
+                               class="w-full pl-9 pr-4 py-2 bg-[#f4f9fd] border border-sky-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                    </div>
+                    
+                    <select id="status-filter" class="bg-[#f4f9fd] border border-sky-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
+                        <option value="all">All Statuses</option>
+                        <option value="placed">Placed Only</option>
+                        <option value="not placed">Not Placed Only</option>
+                    </select>
+
+                    <button type="button" onclick="exportTableToCSV('prediction_history_export.csv')" class="px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold text-xs rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Export</span>
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table id="history-table" class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-sky-100 text-xs text-slate-400 uppercase tracking-wider">
+                                <th class="py-3 px-4">CGPA</th>
+                                <th class="py-3 px-4">IQ Score</th>
+                                <th class="py-3 px-4">Profile Score</th>
+                                <th class="py-3 px-4 text-right">Prediction</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-sky-100 text-sm">
+                            {% if history %}
+                                {% for record in history %}
+                                <tr class="history-row hover:bg-[#f4f9fd] transition-colors" data-status="{{ record[3]|lower }}">
+                                    <td class="py-3 px-4 font-semibold text-slate-800 cgpa-val">{{ record[0] }}</td>
+                                    <td class="py-3 px-4 text-slate-600 iq-val">{{ record[1] }}</td>
+                                    <td class="py-3 px-4 text-slate-600 profile-val">{{ record[2] }}</td>
+                                    <td class="py-3 px-4 text-right">
+                                        {% if record[3] == 'Placed' %}
+                                        <span class="status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
+                                            Placed
+                                        </span>
+                                        {% else %}
+                                        <span class="status-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200 shadow-sm">
+                                            Not Placed
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr id="no-history-row">
+                                    <td colspan="4" class="py-6 text-center text-slate-400 text-sm">
+                                        No evaluation logs recorded yet in <code>prediction_history.csv</code>.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Project Specs Section -->
+        <div class="bg-white border border-sky-200/60 rounded-2xl p-6 shadow-sm space-y-6">
+            <div class="flex items-center space-x-2 border-b border-sky-100 pb-4">
+                <i data-lucide="code-2" class="w-5 h-5 text-indigo-500"></i>
+                <h3 class="text-lg font-bold text-slate-900">Project Specs & Tech Stack</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-4 bg-[#f4f9fd] rounded-xl border border-sky-100 space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5">
+                        <i data-lucide="terminal" class="w-3.5 h-3.5"></i> Python & Backend
+                    </span>
+                    <ul class="text-xs text-slate-600 space-y-1">
+                        <li>• Python 3.12</li>
+                        <li>• Flask Framework</li>
+                        <li>• Scikit-Learn Model Pipeline</li>
+                        <li>• Pickle Serialization</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-[#f4f9fd] rounded-xl border border-sky-100 space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
+                        <i data-lucide="database" class="w-3.5 h-3.5"></i> Data Processing
+                    </span>
+                    <ul class="text-xs text-slate-600 space-y-1">
+                        <li>• Pandas DataFrame Logging</li>
+                        <li>• NumPy Matrix Transformation</li>
+                        <li>• CSV Audit File Persistence</li>
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-[#f4f9fd] rounded-xl border border-sky-100 space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-pink-700 flex items-center gap-1.5">
+                        <i data-lucide="layout" class="w-3.5 h-3.5"></i> Dashboard UI
+                    </span>
+                    <ul class="text-xs text-slate-600 space-y-1">
+                        <li>• Tailwind CSS Styling</li>
+                        <li>• Lucide Vector Icons</li>
+                        <li>• Chart.js Visualizations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Centered Footer / Author & Libraries Tag -->
+            <div class="pt-4 border-t border-sky-100 flex flex-col items-center justify-center text-xs text-slate-500 space-y-2 text-center">
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-sky-100/70 text-sky-800 border border-sky-200 font-mono text-[11px]">Flask</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-indigo-100/70 text-indigo-800 border border-indigo-200 font-mono text-[11px]">Scikit-Learn</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-purple-100/70 text-purple-800 border border-purple-200 font-mono text-[11px]">Pandas</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-100/70 text-emerald-800 border border-emerald-200 font-mono text-[11px]">NumPy</span>
+                </div>
+                <div class="flex items-center space-x-1.5 text-slate-600">
+                    <span>Made by</span>
+                    <span><strong class="text-slate-900 font-bold">Darshan Bhor</strong></span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Quick Preset filler function
+        function fillPreset(cgpa, iq, profile) {
+            document.getElementById('cgpa').value = cgpa;
+            document.getElementById('iq').value = iq;
+            document.getElementById('profile_score').value = profile;
+        }
+
+        // CSV Export function
+        function exportTableToCSV(filename) {
+            const csv = [];
+            const rows = document.querySelectorAll("#history-table tr");
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = [], cols = rows[i].querySelectorAll("td, th");
+                for (let j = 0; j < cols.length; j++) {
+                    let text = cols[j].innerText.trim();
+                    row.push('"' + text.replace(/"/g, '""') + '"');
+                }
+                if (row.length) csv.push(row.join(","));
+            }
+
+            const csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+            const downloadLink = document.createElement("a");
+            downloadLink.download = filename;
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // Historical Data Search, Filter, Counter & Chart Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const rows = document.querySelectorAll('.history-row');
+            const searchInput = document.getElementById('history-search');
+            const statusFilter = document.getElementById('status-filter');
+            
+            const totalEl = document.getElementById('count-total');
+            const placedEl = document.getElementById('count-placed');
+            const notPlacedEl = document.getElementById('count-not-placed');
+
+            let placedCount = 0;
+            let notPlacedCount = 0;
+
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                if (status === 'placed') {
+                    placedCount++;
+                } else if (status === 'not placed') {
+                    notPlacedCount++;
+                }
+            });
+
+            if (totalEl) totalEl.textContent = rows.length;
+            if (placedEl) placedEl.textContent = placedCount;
+            if (notPlacedEl) notPlacedEl.textContent = notPlacedCount;
+
+            // Initialize Chart.js Donut Graph
+            const ctx = document.getElementById('placementChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Placed', 'Not Placed'],
+                        datasets: [{
+                            data: [placedCount, notPlacedCount],
+                            backgroundColor: ['#10b981', '#f59e0b'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { size: 12, family: 'sans-serif' },
+                                    usePointStyle: true
+                                }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            // Filter Table Rows
+            function filterRows() {
+                const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+                const selectedStatus = statusFilter ? statusFilter.value.toLowerCase() : 'all';
+
+                rows.forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    const rowStatus = row.getAttribute('data-status');
+
+                    const matchesSearch = rowText.includes(query);
+                    const matchesStatus = (selectedStatus === 'all') || (rowStatus === selectedStatus);
+
+                    row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+                });
+            }
+
+            if (searchInput) searchInput.addEventListener('input', filterRows);
+            if (statusFilter) statusFilter.addEventListener('change', filterRows);
+        });
+    </script>
+</body>
+</html>
