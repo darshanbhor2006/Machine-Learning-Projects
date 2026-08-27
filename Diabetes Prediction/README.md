@@ -361,8 +361,3 @@ If you find this project useful, consider giving the repository a ⭐ **Star** o
 This project is developed for educational, learning, and portfolio purposes.
 
 © 2026 Darshan Bhor. All Rights Reserved.
-
-### 🚀 Live Application
-
-**Try the Diabetes Prediction Dashboard:**
-https://YOUR-NETLIFY-LINK
