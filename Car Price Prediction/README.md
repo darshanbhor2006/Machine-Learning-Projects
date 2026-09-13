@@ -106,7 +106,7 @@ The test R² score of approximately **93.55%** indicates that the model explains
 ```text
 Automobile_Price_Prediction/
 │
-├── 📓 Linear regression_Auto Data Set(1).ipynb
+├── 📓 Linear regression_Auto Data Set.ipynb
 │
 ├── 🌐 app.py
 │
